@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>冲动消费冷静器</title>
+
+  <!-- 中文手写体 -->
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <!-- 韩文字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #FDFD96;
+      padding: 24px;
+    }
+
+    .card {
+      width: 860px;
+      max-width: 95vw;
+      background: #ffd1dc;
+      border-radius: 32px;
+      padding: 42px 34px;
+      text-align: center;
+      border: 4px solid #caf0f8;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .lang-box {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .lang-btn,
+    .currency-btn,
+    .delete-btn,
+    .main-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 16px;
+      transition: 0.2s ease;
+    }
+
+    .lang-btn {
+      background: #caf0f8;
+      padding: 10px 18px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .lang-btn:hover,
+    .currency-btn:hover,
+    .main-btn:hover,
+    .delete-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    h1 {
+      margin: 8px 0 12px;
+      font-size: 42px;
+      color: #333;
+    }
+
+    .subtitle {
+      font-size: 22px;
+      color: #444;
+      margin-bottom: 26px;
+    }
+
+    .amount-box {
+      background: #c1e1c1;
+      border-radius: 22px;
+      padding: 20px 16px;
+      margin-bottom: 18px;
+    }
+
+    .amount-box input {
+      width: 75%;
+      max-width: 460px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 3px solid #caf0f8;
+      outline: none;
+      font-size: 20px;
+      text-align: center;
+      background: #fffdfd;
+    }
+
+    .currency-box {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .currency-btn {
+      background: #ffffff;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      min-width: 90px;
+    }
+
+    .currency-btn.active {
+      background: #caf0f8;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.8);
+    }
+
+    .main-btn {
+      background: #caf0f8;
+      padding: 18px 36px;
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .result-box {
+      margin-top: 24px;
+      background: #c1e1c1;
+      border-radius: 22px;
+      padding: 20px;
+      text-align: left;
+      font-size: 22px;
+      line-height: 1.85;
+      color: #333;
+    }
+
+    .history-box {
+      margin-top: 22px;
+      background: #c1e1c1;
+      border-radius: 20px;
+      padding: 14px 16px;
+      text-align: left;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .history-box h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .history-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255,255,255,0.45);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .history-text {
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .delete-btn {
+      background: #ff7b89;
+      color: white;
+      padding: 6px 10px;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .empty-history {
+      color: #555;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 26px 18px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .subtitle {
+        font-size: 17px;
+      }
+
+      .amount-box input {
+        width: 90%;
+        font-size: 18px;
+      }
+
+      .main-btn {
+        width: 100%;
+        font-size: 21px;
+      }
+
+      .result-box {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="lang-box">
+      <button class="lang-btn" onclick="setLang('zh')">中文</button>
+      <button class="lang-btn" onclick="setLang('ko')">한국어</button>
+    </div>
+
+    <h1 id="title">🛒 冲动消费冷静器</h1>
+    <div class="subtitle" id="subtitle">先冷静一下，再决定要不要买</div>
+
+    <div class="amount-box">
+      <input type="number" id="amountInput" placeholder="请输入金额" />
+
+      <div class="currency-box">
+        <button id="cnyBtn" class="currency-btn active" onclick="setCurrency('CNY')">CNY</button>
+        <button id="krwBtn" class="currency-btn" onclick="setCurrency('KRW')">KRW</button>
+      </div>
+    </div>
+
+    <button class="main-btn" id="checkBtn" onclick="calculateResult()">让我清醒一下</button>
+
+    <div class="result-box">
+      <div id="resultText">💡 结果会显示在这里</div>
+    </div>
+
+    <div class="history-box">
+      <h3 id="historyTitle">📝 记录</h3>
+      <ul id="historyList" class="history-list"></ul>
+      <p id="emptyHistory" class="empty-history">还没有记录，快试试看吧～</p>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYbu-8-LwW09e5h6AjfsNJDhuJJMRHB3g",
+      authDomain: "impulse-final.firebaseapp.com",
+      projectId: "impulse-final",
+      storageBucket: "impulse-final.firebasestorage.app",
+      messagingSenderId: "679892416846",
+      appId: "1:679892416846:web:0755bf4d58c59400f1861f",
+      measurementId: "G-HK5ZRECKVV"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentLang = "zh";
+    let currentCurrency = "CNY";
+
+    const rateCnyToKrw = 190;
+    const rateKrwToCny = 0.0053;
+
+    const zhMessagesSmall = [
+      "这点钱都想花？你只是手痒吧😂",
+      "便宜不代表你必须拥有",
+      "你不是需要它，你只是刚好看到它",
+      "现在买是冲动，明天看可能就无感了",
+      "你家里说不定已经有类似的了",
+      "这个快乐可能只能持续三分钟",
+      "买之前先问问：它真的能改变我的生活吗？",
+      "先别急，你的余额还在看着你"
+    ];
+
+    const zhMessagesMedium = [
+      "三天后你还会想买吗？",
+      "你是在买快乐，还是买焦虑？",
+      "这笔钱真的值得你工作这么久吗？",
+      "这钱拿去吃饭会更幸福吧",
+      "你是需要它，还是想安慰自己？",
+      "购物车是给你冷静用的，不是催你付款的",
+      "把它留在购物车里，明天再看一眼",
+      "你买的可能不是商品，是情绪出口"
+    ];
+
+    const zhMessagesLarge = [
+      "这个价格，你确定不后悔？",
+      "这已经不是小可爱消费了，这是大动作",
+      "你是在奖励自己，还是在逃避现实？",
+      "未来的你看到扣款短信会开心吗？",
+      "这笔钱能让你好几天不焦虑了",
+      "这不是“想买”，这已经接近“要冷静一下”了",
+      "如果必须想一晚上，那说明它没有那么必要",
+      "你缺的可能不是这个东西，而是快乐"
+    ];
+
+    const koMessagesSmall = [
+      "이 정도도 사고 싶나요? 그냥 손이 근질근질한 거죠 😂",
+      "싸다고 꼭 필요한 건 아니에요",
+      "필요해서가 아니라 그냥 눈에 들어온 거예요",
+      "오늘은 사고 싶고 내일은 잊을 수도 있어요",
+      "비슷한 거 이미 있을지도 몰라요",
+      "이 행복, 3분도 갈까요?",
+      "이게 진짜 생활을 바꿔줄까요?",
+      "잔액이 조용히 울고 있어요"
+    ];
+
+    const koMessagesMedium = [
+      "3일 뒤에도 사고 싶을까요?",
+      "행복을 사는 걸까요, 스트레스를 사는 걸까요?",
+      "이 가격이 그 노동시간만큼의 가치가 있나요?",
+      "이 돈이면 맛있는 걸 더 먹을 수 있어요",
+      "정말 필요한가요, 아니면 위로가 필요한가요?",
+      "장바구니는 결제용이 아니라 냉정해지라고 있는 거예요",
+      "하루만 더 두고 보세요",
+      "물건이 아니라 감정을 사고 있는 걸 수도 있어요"
+    ];
+
+    const koMessagesLarge = [
+      "이 가격… 정말 후회 안 할 자신 있나요?",
+      "이건 귀여운 소비가 아니라 큰 결심이에요",
+      "보상인가요, 회피인가요?",
+      "결제 문자 와도 웃을 수 있나요?",
+      "며칠은 편하게 지낼 수 있는 돈이에요",
+      "지금 필요한 건 결제가 아니라 심호흡일지도 몰라요",
+      "하룻밤 고민해야 한다면 꼭 필요한 건 아닐 수 있어요",
+      "당신이 필요한 건 물건보다 기분일지도 몰라요"
+    ];
+
+    function applyFont() {
+      if (currentLang === "zh") {
+        document.body.style.fontFamily = "'ZCOOL KuaiLe', cursive";
+      } else {
+        document.body.style.fontFamily = "'Gaegu', cursive";
+      }
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      applyFont();
+
+      if (lang === "zh") {
+        document.documentElement.lang = "zh";
+        document.getElementById("title").innerText = "🛒 冲动消费冷静器";
+        document.getElementById("subtitle").innerText = "先冷静一下，再决定要不要买";
+        document.getElementById("amountInput").placeholder = "请输入金额";
+        document.getElementById("checkBtn").innerText = "让我清醒一下";
+        document.getElementById("historyTitle").innerText = "📝 记录";
+        if (document.getElementById("emptyHistory").style.display !== "none") {
+          document.getElementById("emptyHistory").innerText = "还没有记录，快试试看吧～";
+        }
+      } else {
+        document.documentElement.lang = "ko";
+        document.getElementById("title").innerText = "🛒 충동 소비 진정기";
+        document.getElementById("subtitle").innerText = "잠깐만, 진정하고 생각해요";
+        document.getElementById("amountInput").placeholder = "금액을 입력하세요";
+        document.getElementById("checkBtn").innerText = "정신 차리기";
+        document.getElementById("historyTitle").innerText = "📝 기록";
+        if (document.getElementById("emptyHistory").style.display !== "none") {
+          document.getElementById("emptyHistory").innerText = "아직 기록이 없어요. 한번 해보세요~";
+        }
+      }
+    }
+
+    function setCurrency(currency) {
+      currentCurrency = currency;
+      document.getElementById("cnyBtn").classList.remove("active");
+      document.getElementById("krwBtn").classList.remove("active");
+
+      if (currency === "CNY") {
+        document.getElementById("cnyBtn").classList.add("active");
+      } else {
+        document.getElementById("krwBtn").classList.add("active");
+      }
+    }
+
+    function getRandomMessage(amount) {
+      let messages;
+
+      if (currentLang === "zh") {
+        if (amount < 100) {
+          messages = zhMessagesSmall;
+        } else if (amount < 500) {
+          messages = zhMessagesMedium;
+        } else {
+          messages = zhMessagesLarge;
+        }
+      } else {
+        if (amount < 10000) {
+          messages = koMessagesSmall;
+        } else if (amount < 50000) {
+          messages = koMessagesMedium;
+        } else {
+          messages = koMessagesLarge;
+        }
+      }
+
+      return messages[Math.floor(Math.random() * messages.length)];
+    }
+
+    function saveToFirebase(data) {
+      db.collection("records").add(data)
+        .then(() => {
+          console.log("保存成功");
+        })
+        .catch((error) => {
+          console.error("保存失败:", error);
+        });
+    }
+
+    function calculateResult() {
+      const amount = parseFloat(document.getElementById("amountInput").value);
+
+      if (isNaN(amount) || amount <= 0) {
+        document.getElementById("resultText").innerText =
+          currentLang === "zh" ? "请输入正确的金额" : "올바른 금액을 입력하세요";
+        return;
+      }
+
+      let convertedAmount = 0;
+      let convertedCurrency = "";
+      let hourlyWage = 0;
+
+      if (currentCurrency === "CNY") {
+        convertedAmount = amount * rateCnyToKrw;
+        convertedCurrency = "KRW";
+      } else {
+        convertedAmount = amount * rateKrwToCny;
+        convertedCurrency = "CNY";
+      }
+
+      if (currentLang === "zh") {
+        hourlyWage = 25;
+      } else {
+        hourlyWage = 10320;
+      }
+
+      const workHours = (amount / hourlyWage).toFixed(1);
+      const randomMsg = getRandomMessage(amount);
+
+      if (currentLang === "zh") {
+        document.getElementById("resultText").innerHTML = `
+          💰 输入金额：${amount.toFixed(2)} ${currentCurrency}<br>
+          🔄 换算金额：${convertedAmount.toFixed(2)} ${convertedCurrency}<br>
+          ⏰ 需要工作：${workHours} 小时<br>
+          🧠 随机语录：${randomMsg}
+        `;
+      } else {
+        document.getElementById("resultText").innerHTML = `
+          💰 입력 금액: ${amount.toFixed(2)} ${currentCurrency}<br>
+          🔄 환산 금액: ${convertedAmount.toFixed(2)} ${convertedCurrency}<br>
+          ⏰ 필요한 노동 시간: ${workHours}시간<br>
+          🧠 랜덤 멘트: ${randomMsg}
+        `;
+      }
+
+      addHistory(amount, convertedAmount, convertedCurrency, workHours, randomMsg);
+
+      saveToFirebase({
+        language: currentLang,
+        inputAmount: amount,
+        inputCurrency: currentCurrency,
+        convertedAmount: Number(convertedAmount.toFixed(2)),
+        convertedCurrency: convertedCurrency,
+        workHours: Number(workHours),
+        message: randomMsg,
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    function addHistory(amount, convertedAmount, convertedCurrency, workHours, message) {
+      const historyList = document.getElementById("historyList");
+      const emptyHistory = document.getElementById("emptyHistory");
+
+      emptyHistory.style.display = "none";
+
+      const li = document.createElement("li");
+
+      const textDiv = document.createElement("div");
+      textDiv.className = "history-text";
+
+      const now = new Date();
+      const timeString = now.toLocaleString();
+
+      if (currentLang === "zh") {
+        textDiv.innerHTML = `
+          ${timeString}<br>
+          ${amount.toFixed(2)} ${currentCurrency} → ${convertedAmount.toFixed(2)} ${convertedCurrency}<br>
+          ${workHours}小时｜${message}
+        `;
+      } else {
+        textDiv.innerHTML = `
+          ${timeString}<br>
+          ${amount.toFixed(2)} ${currentCurrency} → ${convertedAmount.toFixed(2)} ${convertedCurrency}<br>
+          ${workHours}시간｜${message}
+        `;
+      }
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.innerText = currentLang === "zh" ? "删除" : "삭제";
+
+      deleteBtn.onclick = function () {
+        li.remove();
+        if (historyList.children.length === 0) {
+          emptyHistory.style.display = "block";
+        }
+      };
+
+      li.appendChild(textDiv);
+      li.appendChild(deleteBtn);
+      historyList.prepend(li);
+
+      if (historyList.children.length > 6) {
+        historyList.removeChild(historyList.lastChild);
+      }
+    }
+
+    applyFont();
+  </script>
+</body>
+</html>
